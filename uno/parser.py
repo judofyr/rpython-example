@@ -9,6 +9,7 @@ precedence = [
     ("left", ["EQUAL"]),
     ("left", ["PLUS", "MINUS"]),
     ("left", ["MULT", "DIV"]),
+    ("left", ["LPAREN"]),
 ]
 
 class BoxAST(BaseBox):

@@ -1,5 +1,6 @@
 from uno.lexer import Lexer
 from uno.parser import parser
+from uno.interpreter import Interpreter
 from rply.errors import ParsingError
 
 import os
@@ -17,7 +18,8 @@ def entry_point(argv):
     lexer = Lexer(data)
     res = parser.parse(lexer.tokenize())
     ast = res.getast()
-    print ast.run({})
+    runner = Interpreter(ast)
+    runner.run()
     return 0
 
 def target(*args):

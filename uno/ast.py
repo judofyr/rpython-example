@@ -11,7 +11,9 @@ class Op(Node):
         return ("op", self.type, self.left.dump(), self.right.dump())
 
     def run(self, env):
-        return self.left.run(env) + self.right.run(env)
+        left = self.left.run(env)
+        right = self.right.run(env)
+        return left.operator(env, self.type, right)
 
 class Var(Node):
     def __init__(self, name):
@@ -20,6 +22,9 @@ class Var(Node):
     def dump(self):
         return ("var", self.name)
 
+    def run(self, env):
+        return env.getattr(self.name)
+
 class Num(Node):
     def __init__(self, value):
         self.value = value
@@ -27,8 +32,8 @@ class Num(Node):
     def dump(self):
         return ("num", self.value)
 
-    def run(self):
-        return self.value
+    def run(self, env):
+        return env.newint(self.value)
 
 class Param(Node):
     def __init__(self, name, guard):
@@ -49,6 +54,9 @@ class Block(Node):
 
     def dump(self):
         return ("block", [x.dump() for x in self.vars])
+
+    def run(self, env):
+        return env.newblock(self.vars)
 
 class Record(Node):
     def __init__(self, fields):
@@ -105,6 +113,11 @@ class Call(Node):
     def dump(self):
         return ("call", self.base.dump(), [x.dump() for x in self.args])
 
+    def run(self, env):
+        base = self.base.run(env)
+        args = [arg.run(env) for arg in self.args]
+        return base.call(env, args)
+
 class Exprs(Node):
     def __init__(self, left, right):
         self.left = left
@@ -127,7 +140,7 @@ class Assign(Node):
 
     def run(self, env):
         value = self.expr.run(env)
-        env[self.name] = value
+        env.setattr(self.name, value)
         return value
 
 
